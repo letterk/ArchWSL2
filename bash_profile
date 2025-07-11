@@ -10,19 +10,23 @@ txtrst=$(tput sgr0)
 
 test -e /mnt/c/Users/Public/shutdown.cmd && rm /mnt/c/Users/Public/shutdown.cmd
 test -e ~/shutdown.cmd && rm ~/shutdown.cmd
-figlet -t -k -f /usr/share/figlet/fonts/mini.flf "Welcome to ArchWSL2" | lolcat
+echo -e "${grn}Welcome to your custom ArchWSL2 environment!${txtrst}"
 echo -e "\033[33;7mDo not interrupt or close the terminal window till script finishes execution!!!\n\033[0m"
 
 echo -e ${grn}"Initializing and populating keyring..."${txtrst}
 pacman-key --init >/dev/null 2>&1
 pacman-key --populate >/dev/null 2>&1
 pacman -Sy archlinux-keyring --noconfirm >/dev/null 2>&1
+echo -e ${grn}"Setting up Chinese mirrors using reflector..."${txtrst}
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+reflector --country China --protocol https --latest 5 --sort rate --save /etc/pacman.d/mirrorlist
+pacman -Syy >/dev/null 2>&1
+
 setcap cap_net_raw+p /usr/sbin/ping
 sed -i '/PS1/d' /etc/skel/.bashrc
 echo "PS1='\[\033[01;32m\][\u@\h\[\033[01;37m\] \W\[\033[01;32m\]]\$\[\033[00m\] '" | tee -a /etc/skel/.bashrc >/dev/null 2>&1
 echo 'export BROWSER="wslview"' | tee -a /etc/skel/.bashrc >/dev/null 2>&1
-sudo systemctl daemon-reload
-sudo systemctl enable wslg-init.service >/dev/null 2>&1
+
 
 echo -e ${grn}"Do you want to create a new user?"${txtrst}
 select yn in "Yes" "No"; do

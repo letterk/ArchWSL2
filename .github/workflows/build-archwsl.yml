@@ -1,0 +1,29 @@
+name: Build ArchWSL2 Distribution (using Makefile)
+
+on:
+  # push:
+  #   branches:
+  #     - main 
+  workflow_dispatch: 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest 
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies for Makefile
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libarchive-tools jq
+
+      - name: Run Makefile build
+        run: make all
+
+      - name: Upload ArchWSL2.zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ArchWSL2-distribution
+          path: ArchWSL2.zip
